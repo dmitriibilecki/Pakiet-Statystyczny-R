@@ -1,0 +1,54 @@
+# wszystkie zadania
+#1 (a) Utworzyc wektor w1, ktуrego elementami sa liczby calkowite od ???12 do 14
+w1<- c(-12:14)
+#(b) Podac dlugosc wektora w1
+length(w1)
+#(c) Pomnozyc elementy wektora w1 przez 4
+w1*4
+#(d) Utworzyc wektor w2 skladajacy sie z tych elementуw w1, ktуre zawieraja sie w przedziale [???3, 8)
+w2<- c(-3:7)
+w2
+#Utworzyc wektor o elementach: 1, 2, . . . , 1000, 2001, 2002, . . . , 2999
+1:2999
+#Utworzyc macierz m wymiaru 10 Ч 4 postaci
+m=matrix(1:40,10,4)
+m1=m
+m1[,4] <- pi
+m1
+#Utworzyc ramke danych d1, ktуra zawiera (jako kolejne kolumny) imie, wiek, wyksztalcenie
+#(oznaczone jako: p - podstawowe, s - srednie, w - wyzsze) trzech osуb. Ostatnia osoba
+#nie podala wyksztalcenia.
+d1 <- data.frame(imie=c("Basia", "Srasia", "Gosia"), wiek=c(16, 17, 16), wyksztalcenie=c("p", "s", ""))
+d1
+#Zamienic miejscami kolumny wiek i wyksztalcenie. Wynik zapisac jako ramke danych d2
+d2=d1[ c(1,3,2)]
+#Z d2 usunac kolumne imie. Wynik zapisac jako ramke danych d3
+d3=d2[ c(2,3)]
+d3
+#5 Utworzyc liste, ktуrej elementami sa:
+#-wymiar macierzy m,
+dim(m)
+#suma elementуw drugiej kolumny macierzy m,
+m1
+colSums(m1)
+colSums (m1[,2 , drop=FALSE])
+# macierz m2 powstala z m poprzez usuniecie ostatniej kolumny
+m2 <- m[,-1]
+m2
+#ramka danych cars
+data(cars)
+cars
+#Z listy lista1 (plik lista1.RData) usunac trzy elementy, o nazwach: elem5225884 elem5204727 elem5190630
+load(file = "lista1.RData")
+lista1
+lista2 <- lista1[names(lista1) %in% "elem5225884" %in% "elem5204727" %in% "elem5190630" == FALSE]
+lista2
+save(file='lista2.RData')
+#Z ramki danych cars wybrac zmienna dist i obserwacje, dla ktуrych dystans zawiera sie w
+#przedziale (26, 56] (uzyc funkcji subset). Wynik zapisac jako ramke danych cars.dist i podac
+#jej wymiar. Ile obserwacji zostalo wybranych?
+cars
+cars.dist<- subset(cars,dist > 26 & dist <= 56, select = dist, drop= FALSE)
+length(cars.dist)
+nrow(cars.dist)
+cars.dist
