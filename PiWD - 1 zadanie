@@ -1,0 +1,146 @@
+rm(list=ls())
+#zadanie domowe
+#============================================================================
+#import pliku, import bibliotek
+library(dplyr)
+library(reshape)
+library(tidyr)
+library(stringr)
+csv_dane_na <- read.csv2("PZHGrypaZachorowania.csv", header = TRUE, sep= ";", dec =".", fileEncoding="UTF-8") #data.frame
+
+#======================================================================================
+# badanie klasy
+csv_dane <- csv_dane_na %>% replace(is.na(.), 0)
+head(csv_dane)
+
+
+#Przetwarzanie danych
+#Dane do strony 4
+names(csv_dane)
+c(colnames(csv_dane)) -> nazwy
+nazwy
+head(csv_dane)
+#=============================================================================================
+#dane do 4 strony
+a <- csv_dane %>% select(Rok, liczba_ogolem) %>% group_by(Rok) %>%
+    summarise(dane_zagregowane=sum(liczba_ogolem, na.rm = TRUE)) %>% arrange(Rok) #dane zagregowane dla 4 strony
+b <- csv_dane %>% select(Rok, liczba_0_4, liczba_5_14, liczba_15_64, liczba_65_inf) %>% group_by(Rok) %>% summarise_at(vars(liczba_0_4:liczba_65_inf), sum, na.rm = TRUE)
+head(b)
+head(a)
+#================================================================================================
+#dane do 5 strony
+
+strona_5a_raw <- csv_dane %>% select(Miesiac, Nr, Okres, liczba_ogolem) %>% group_by(Miesiac) %>% summarise(dane_do_boxplota_mies=sum(liczba_ogolem, na.rm= TRUE)) %>% arrange(Miesiac)
+test_a <- csv_dane %>% select(Miesiac, liczba_ogolem) %>% group_by(Miesiac)
+head(test_a)
+
+str(test_a)
+#Pierwszy wykres dane
+wide_long_trans <- pivot_wider(csv_dane,names_from = Miesiac, values_from = liczba_ogolem) # kulumnie miesiac oraz okres i wszystko pivotem_wider
+cc <- wide_long_trans[,15:26]
+#drugi po lewej
+wide_long_0_4 <- pivot_wider(csv_dane,names_from = Miesiac, values_from = liczba_0_4)
+cc2l <- wide_long_0_4[,15:26]
+#drugi po prawej
+wide_long_5_14 <- pivot_wider(csv_dane,names_from = Miesiac, values_from = liczba_5_14)
+cc2r <- wide_long_5_14[,15:26]
+#trzeci po lewej
+wide_long_15_64 <-pivot_wider(csv_dane,names_from = Miesiac, values_from = liczba_15_64)
+cs3l <- wide_long_15_64[,15:26]
+#trzeci po prawej
+wide_long_65_inf <- pivot_wider(csv_dane,names_from = Miesiac, values_from = liczba_65_inf)
+cs3r <- wide_long_65_inf[,15:26]
+
+
+
+
+
+#=========================================================================================================================================
+
+#zmienne pomocnicze
+years <- c(2010:2021)
+
+
+
+
+
+
+
+#koniec przetwarzania danych
+#==============================================================================
+
+#================================================================================================================================
+
+# strona nr 4
+x11()
+op <- par(mfrow=c(2,1))
+#gorny histogram 0 clastered barplot
+barplot(as.matrix(a[,2]), beside=TRUE, names =years, space =0.2,
+        col=c("red","red2", "orangered2" , "orangered", "orange", "goldenrod2","orange1", "gold2" ,"gold","yellow1", "yellow" ,"black"),
+        cex.names = .9,
+        ylab = "Liczba Przypadkwуw ",
+        xlab= "rok",
+        main = "Grypa - dane zagregowane z lat 2010 - 2021", frame.plot= FALSE
+     )
+
+par(xpd=TRUE)
+#dolny histogram -zamienic prostokat na kwadrat w legendach
+barplot(t(as.matrix(b[,2:5])), beside = TRUE, names = years,
+        col=c("grey", "green", "yellow", "red"),
+        ylim=c(0,5100000),
+        ylab="Liczba przypadkow", frame.plot= FALSE
+        
+        
+        )
+legend(x=-2.35,y=6700000, legend=c("0-4", "5-14", "15-64", "65-inf"), col=c("grey", "green", "yellow", "red"),
+         bty = "n",box.lty = 1, pt.cex = 1, cex=0.7, pch=15, x.intersp = 0.5, y.intersp = 0.8
+       )
+mtext("Zrodlo danych: PZH
+http://wwwold.pzh.gov.pl/oldpage/epimeld/grypa/index.htm", side = 4, line = 1, cex=0.8)
+par(op)
+
+#=========================================================================================================================
+
+
+
+#strona nr 5 1) Pierwszy wykres - utworzyc data.frame , transportowac jedna kolumne i pozniej cala macierz
+x11()
+layout(matrix(c(1,1,2,3,4,5),3,2 , byrow= TRUE))
+
+#pierwszy gorny wykres
+boxplot(as.matrix(cc),
+        main = "Grypa - boxploty miesieczne z danych tygodniowych za lata 2010 -2021
+        Ogolem",
+        xlab= "Ogolem",
+        col=c("red","red2", "orangered2" , "orangered", "orange", "goldenrod2","orange1", "gold2" ,"gold","yellow1", "yellow",'white'),
+        ylim=c(-2000,35000), outline=FALSE, horiz= TRUE, frame.plot= FALSE
+        
+        )
+
+#drugi 2 wykresy 
+#1) Lewy
+boxplot(cc2l, outline = FALSE,
+        col=c("red","red2", "orangered2" , "orangered", "orange", "goldenrod2","orange1", "gold2" ,"gold","yellow1", "yellow",'white'),
+        main="0-4", frame.plot= FALSE,
+        ylim=c(0,8000)
+        
+        )
+#2) Prawy
+boxplot(cc2r,
+        col=c("red","red2", "orangered2" , "orangered", "orange", "goldenrod2","orange1", "gold2" ,"gold","yellow1", "yellow",'white'),
+        frame.plot= FALSE, ylim=c(0,8000), outline = FALSE,
+        main="5-14"
+        
+        )
+
+#trzeci 2 wykresy
+#lewy
+boxplot(cs3l,
+        col=c("red","red2", "orangered2" , "orangered", "orange", "goldenrod2","orange1", "gold2" ,"gold","yellow1", "yellow",'white'),
+        frame.plot= FALSE, ylim=c(0,15000), outline = FALSE,
+        main="15-64")
+#prawy
+boxplot(cs3r,
+        col=c("red","red2", "orangered2" , "orangered", "orange", "goldenrod2","orange1", "gold2" ,"gold","yellow1", "yellow",'white'),
+        frame.plot= FALSE, ylim=c(0,4000), outline = FALSE,
+        main="65-Inf")
