@@ -1,1 +1,1 @@
-# Pakiet-Statystyczny-R
+# Work with Rstudio
