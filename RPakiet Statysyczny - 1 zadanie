@@ -1,22 +1,23 @@
-# wszystkie zadania
-#1 (a) Utworzyc wektor w1, ktуrego elementami sa liczby calkowite od ???12 do 14
+# wszystkie zadanie
+library(dplyr)
+#1 (a) Utworzyc wektor w1, którego elementami sa liczby calkowite od ???12 do 14
 w1<- c(-12:14)
 #(b) Podac dlugosc wektora w1
 length(w1)
 #(c) Pomnozyc elementy wektora w1 przez 4
 w1*4
-#(d) Utworzyc wektor w2 skladajacy sie z tych elementуw w1, ktуre zawieraja sie w przedziale [???3, 8)
+#(d) Utworzyc wektor w2 skladajacy sie z tych elementów w1, które zawieraja sie w przedziale [???3, 8)
 w2<- c(-3:7)
 w2
 #Utworzyc wektor o elementach: 1, 2, . . . , 1000, 2001, 2002, . . . , 2999
 1:2999
-#Utworzyc macierz m wymiaru 10 Ч 4 postaci
+#Utworzyc macierz m wymiaru 10 × 4 postaci
 m=matrix(1:40,10,4)
 m1=m
 m1[,4] <- pi
 m1
-#Utworzyc ramke danych d1, ktуra zawiera (jako kolejne kolumny) imie, wiek, wyksztalcenie
-#(oznaczone jako: p - podstawowe, s - srednie, w - wyzsze) trzech osуb. Ostatnia osoba
+#Utworzyc ramke danych d1, która zawiera (jako kolejne kolumny) imie, wiek, wyksztalcenie
+#(oznaczone jako: p - podstawowe, s - srednie, w - wyzsze) trzech osób. Ostatnia osoba
 #nie podala wyksztalcenia.
 d1 <- data.frame(imie=c("Basia", "Srasia", "Gosia"), wiek=c(16, 17, 16), wyksztalcenie=c("p", "s", ""))
 d1
@@ -25,10 +26,10 @@ d2=d1[ c(1,3,2)]
 #Z d2 usunac kolumne imie. Wynik zapisac jako ramke danych d3
 d3=d2[ c(2,3)]
 d3
-#5 Utworzyc liste, ktуrej elementami sa:
+#5 Utworzyc liste, której elementami sa:
 #-wymiar macierzy m,
 dim(m)
-#suma elementуw drugiej kolumny macierzy m,
+#suma elementów drugiej kolumny macierzy m,
 m1
 colSums(m1)
 colSums (m1[,2 , drop=FALSE])
@@ -38,13 +39,21 @@ m2
 #ramka danych cars
 data(cars)
 cars
-#Z listy lista1 (plik lista1.RData) usunac trzy elementy, o nazwach: elem5225884 elem5204727 elem5190630
+# 6) Z listy lista1 (plik lista1.RData) usunac trzy elementy, o nazwach: elem5225884 elem5204727 elem5190630
+#1 
 load(file = "lista1.RData")
 lista1
 lista2 <- lista1[names(lista1) %in% "elem5225884" %in% "elem5204727" %in% "elem5190630" == FALSE]
 lista2
 save(file='lista2.RData')
-#Z ramki danych cars wybrac zmienna dist i obserwacje, dla ktуrych dystans zawiera sie w
+#2
+to_del <- c('elem5225884','elem5204727', 'elem5190630')
+dataframe_clean <- as.data.frame(lista1) %>% select(-to_del)
+lista2v1 <- select(lista1,-to_del)
+clean_lista1 <- as.list(dataframe_clean)
+
+
+# 7) Z ramki danych cars wybrac zmienna dist i obserwacje, dla których dystans zawiera sie w
 #przedziale (26, 56] (uzyc funkcji subset). Wynik zapisac jako ramke danych cars.dist i podac
 #jej wymiar. Ile obserwacji zostalo wybranych?
 cars
@@ -52,3 +61,16 @@ cars.dist<- subset(cars,dist > 26 & dist <= 56, select = dist, drop= FALSE)
 length(cars.dist)
 nrow(cars.dist)
 cars.dist
+# 7 zadanie przezcytaj csv
+ceny <- read.csv2("ceny.csv", header = TRUE, sep=';', dec=",")
+ceny1<- ceny$towar[ceny$Towar = ('cytryny'), ]
+ceny2 <- filter(ceny, towar == ("cytryny"))
+write.csv2(ceny,"ceny_test.xlsx",row.names = T)
+# Wczyta? do R dane z pliku egzamin2.txt. 
+# Kolejna kolumny to liczba porządkowa oraz punkty za zadania od 1. do 5.
+# Dodać kolumną Suma, będącą sumą punktów.
+# Zapisać dane w formacie .csv.
+egz_txt <- read.table('egzamin2.txt', sep =';', header =T, row.names = 'Lp')
+egz_txt['Suma'] <- rowSums(egz_txt)
+class(egz_txt)
+write.csv(egz_txt,'egzamin2.csv', row.names = T)
