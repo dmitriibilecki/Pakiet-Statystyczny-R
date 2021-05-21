@@ -1,0 +1,128 @@
+<!-- raport musi zawieraÄ‡ tytuÅ‚, autora, date wykonania +  -->
+
+
+---
+title: "PiWD/107316/zadanie_05"
+date: "May 20, 2021"
+author: "Dmitrii Bilecki"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Spis treści
+Niniejszy raport zawiera:
+
+
+* tytuł, autora, date wykonania
+* wykres kursow USD, EUR, GBP
+  + Wykres zawiera dane za ostatnie 7 dni
+  + Wykres znajduje sie w osobnym rozdziale raportu
+
+
+
+
+
+
+<!--bedzie zawieral tabele z notowaniami tych trzech kursow walut + . Tabelka ma zawierac sie w osobnym rozdziale raportu. -->
+
+```{r , echo=FALSE, results='hide', include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(patchwork)
+library(ggplot2)
+library(grid)
+library(ggpubr)
+library(ggeasy)
+getNBPData <- function(year=2021){
+    
+  ret <- data.frame()
+
+  if(year>=2013){
+
+    fileName <- paste0(year,"_NBP_data.csv")
+  
+    try({
+      if(file.exists(fileName)){
+        if(as.Date(file.info(fileName)$mtime)==Sys.Date()){
+          #cat(paste("Reading data from local file\n"))
+          ret<-read.table(file=fileName,sep=";",dec=",",header=T,stringsAsFactor=F)
+    	  colnames(ret) <- gsub("X","",colnames(ret))
+	  return(ret)
+	}
+      }
+    })
+  
+    cat(paste("Downloading data\n"))
+  
+    res <- try({
+  
+      d <- readLines(paste0("https://www.nbp.pl/kursy/Archiwum/archiwum_tab_a_",year,".csv"))
+      d <- d[-2]
+      d <- d[-c((length(d)-3):length(d))]
+      tmpColnames <- strsplit(d[1],";",useBytes=T)[[1]]
+      tmpColnames <- tmpColnames[-c((length(tmpColnames)-1):length(tmpColnames))]
+      d <- do.call("rbind",
+        lapply(strsplit(d[-1],";"),
+        function(x){
+          matrix(as.numeric(gsub(",",".",x[-c((length(x)-1):length(x))])),nrow=1)
+        })
+      )
+      colnames(d) <- tmpColnames
+      d <- as.data.frame(d)
+      
+      d$data <- as.Date(as.character(d$data),format="%Y%m%d")
+      ret <- d
+      write.table(ret,file=fileName,sep=";",dec=",",row.names=F)
+    
+    },silent=T)
+  
+    if(inherits(res,"try-error")){
+      cat(paste("An error occurred while downloading data!!!\n")) 
+    }
+  
+
+  }
+
+  return(ret)
+
+}
+#--------------------------------------
+
+ret <- getNBPData(2021)
+ret <- ret[,grep("data|EUR|USD|GBP",colnames(ret))]
+names(ret)[names(ret) == "1USD"] <- "USD"
+names(ret)[names(ret) == "1EUR"] <- "EUR"
+names(ret)[names(ret) == "1GBP"] <- "GBP"
+names(ret)[names(ret) == "data"] <- "data"
+ab<- tail(ret,7)
+```
+
+## Rodział 1 Wykres walut względem PLN
+
+```{r, echo=FALSE}
+wykres1 <- (
+  ggplot(ab, mapping =aes(x=data, y=USD, group=1)
+  )
+  +geom_path(mapping = aes(x=as.Date(data), y=USD, color="USD"), size =0.1)+ geom_line(mapping =  aes(x=as.Date(data), y=EUR, color="EUR")) + geom_line(aes(x=as.Date(data),y=GBP, color="GBP"))
++ labs(x=as.character("2021"),y= "PLN", label="rok", title= "Wykres", subtitle = "EUR, USD, GPB wzgledem PLN", caption = "www.nbp.pl", colour = 'Legenda')
+ + theme(legend.position = c(0.95,0.95), legend.justification = c("right","top"))
+  + scale_colour_manual(name="Line Color",
+                        values=c(USD="red", EUR="green3", GBP="purple"))
+  + theme_minimal()
+  + scale_y_continuous(breaks = seq(3.3, 6, by = 0.1))
+  + scale_x_date(date_breaks = "1 day",breaks= waiver(), date_labels="%d/%b")
+  )
+print(wykres1)
+```
+
+
+
+## Rozdział 2 Tabela
+
+```{r , echo=FALSE, results="asis"}
+library(knitr)
+kable(ab, caption="Kursy walut")
+```
+
